@@ -1,0 +1,6 @@
+@using CRUD_Servicios_REST_ASP.NET_CSharp.Areas.HelpPage.ModelDescriptions
+@model CollectionModelDescription
+@if (Model.ElementDescription is ComplexTypeModelDescription)
+{
+    @Html.DisplayFor(m => m.ElementDescription)
+}
