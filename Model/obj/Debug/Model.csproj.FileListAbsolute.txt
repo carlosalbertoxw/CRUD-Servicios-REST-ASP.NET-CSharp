@@ -1,6 +1,5 @@
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\Model\bin\Debug\Model.dll
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\Model\bin\Debug\Model.pdb
-C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\Model\obj\Debug\Model.csprojAssemblyReference.cache
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\Model\obj\Debug\Model.csproj.CoreCompileInputs.cache
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\Model\obj\Debug\Model.dll
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\Model\obj\Debug\Model.pdb

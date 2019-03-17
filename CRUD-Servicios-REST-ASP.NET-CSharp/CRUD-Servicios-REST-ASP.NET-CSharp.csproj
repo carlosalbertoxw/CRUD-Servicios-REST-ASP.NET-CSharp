@@ -163,7 +163,6 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotesController.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -243,8 +242,8 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Datos\Data.csproj">
-      <Project>{0b2a8961-b586-472b-964f-283b5f6450ff}</Project>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{81809c03-a590-4446-a235-2061cd9afa74}</Project>
       <Name>Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">

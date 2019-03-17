@@ -84,10 +84,10 @@ C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CShar
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\obj\Debug\CRUD-Servicios-REST-ASP.NET-CSharp.csproj.CopyComplete
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\obj\Debug\CRUD-Servicios-REST-ASP.NET-CSharp.dll
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\obj\Debug\CRUD-Servicios-REST-ASP.NET-CSharp.pdb
-C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Datos.dll
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Model.dll
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\MySql.Data.dll
-C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Datos.pdb
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Model.pdb
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Utilities.dll
 C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Utilities.pdb
+C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Data.dll
+C:\Users\Carlos\Documents\VisualStudioProjects\CRUD-Servicios-REST-ASP.NET-CSharp\CRUD-Servicios-REST-ASP.NET-CSharp\bin\Data.pdb
