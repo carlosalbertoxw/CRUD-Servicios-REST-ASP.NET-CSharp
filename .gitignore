@@ -7,14 +7,14 @@
 
 packages/
 
-Utilities/bin
-Utilities/obj
+Utilities/bin/
+Utilities/obj/
 
-Model/bin
-Model/obj
+Model/bin/
+Model/obj/
 
-Data/bin
-Data/obj
+Data/bin/
+Data/obj/
 
-CRUD-Servicios-REST-ASP.NET-CSharp/bin
-CRUD-Servicios-REST-ASP.NET-CSharp/obj
+CRUD-Servicios-REST-ASP.NET-CSharp/bin/
+CRUD-Servicios-REST-ASP.NET-CSharp/obj/
