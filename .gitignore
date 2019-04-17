@@ -6,6 +6,7 @@
 [Oo]bj/
 
 packages/
+.vs/
 
 Utilities/bin/
 Utilities/obj/
