@@ -18,11 +18,13 @@ namespace Datos
 
         public bool delete(Int32 id)
         {
+            MySqlConnection connection=null;
+            MySqlTransaction transaction=null;
             try
             {
                 bool r;
-                MySqlConnection connection = dataAccess.openConnection();
-                MySqlTransaction transaction = connection.BeginTransaction();
+                connection = dataAccess.openConnection();
+                transaction = connection.BeginTransaction();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
                 command.CommandText = "DELETE FROM notes WHERE id=@id;";
@@ -30,33 +32,38 @@ namespace Datos
                 Int32 result = command.ExecuteNonQuery();
                 if (result == 1)
                 {
-                    transaction.Commit();
                     r = true;
                 }
                 else
                 {
-                    transaction.Rollback();
                     r = false;
                 }
-                dataAccess.closeConnection(connection);
+                transaction.Commit();
                 return r;
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 Debug.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
                 return false;
+            }
+            finally
+            {
+                dataAccess.closeConnection(connection);
             }
 
         }
 
         public bool update(Notes model)
         {
+            MySqlConnection connection = null;
+            MySqlTransaction transaction = null;
             try
             {
                 bool r;
-                MySqlConnection connection = dataAccess.openConnection();
-                MySqlTransaction transaction = connection.BeginTransaction();
+                connection = dataAccess.openConnection();
+                transaction = connection.BeginTransaction();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
                 command.CommandText = "UPDATE notes SET title=@title,text=@text WHERE id=@id;";
@@ -66,32 +73,36 @@ namespace Datos
                 Int32 result = command.ExecuteNonQuery();
                 if (result == 1)
                 {
-                    transaction.Commit();
                     r = true;
                 }
                 else
                 {
-                    transaction.Rollback();
                     r = false;
                 }
-                dataAccess.closeConnection(connection);
+                transaction.Commit();
                 return r;
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 Debug.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
                 return false;
+            }
+            finally
+            {
+                dataAccess.closeConnection(connection);
             }
 
         }
 
         public Notes get(Int32 id)
         {
+            MySqlConnection connection = null;
             try
             {
                 Notes item = new Notes();
-                MySqlConnection connection = dataAccess.openConnection();
+                connection = dataAccess.openConnection();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
                 command.CommandText = "SELECT * FROM notes WHERE id=@id;";
@@ -99,7 +110,6 @@ namespace Datos
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 DataTable dataTable = new DataTable();
                 adapter.Fill(dataTable);
-                dataAccess.closeConnection(connection);
 
                 foreach (DataRow row in dataTable.Rows)
                 {
@@ -116,22 +126,26 @@ namespace Datos
                 Debug.WriteLine(ex.StackTrace);
                 return null;
             }
+            finally
+            {
+                dataAccess.closeConnection(connection);
+            }
 
         }
 
         public List<Notes> list()
         {
+            MySqlConnection connection = null;
             try
             {
                 List<Notes> list = new List<Notes>();
-                MySqlConnection connection = dataAccess.openConnection();
+                connection = dataAccess.openConnection();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
                 command.CommandText = "SELECT * FROM notes;";
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 DataTable dataTable = new DataTable();
                 adapter.Fill(dataTable);
-                dataAccess.closeConnection(connection);
 
                 foreach (DataRow row in dataTable.Rows)
                 {
@@ -150,16 +164,22 @@ namespace Datos
                 Debug.WriteLine(ex.StackTrace);
                 return null;
             }
+            finally
+            {
+                dataAccess.closeConnection(connection);
+            }
 
         }
 
         public bool add(Notes model)
         {
+            MySqlConnection connection = null;
+            MySqlTransaction transaction = null;
             try
             {
                 bool r;
-                MySqlConnection connection = dataAccess.openConnection();
-                MySqlTransaction transaction = connection.BeginTransaction();
+                connection = dataAccess.openConnection();
+                transaction = connection.BeginTransaction();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
                 command.CommandText = "INSERT INTO notes(title,text) VALUES(@title,@text);";
@@ -167,22 +187,25 @@ namespace Datos
                 command.Parameters.AddWithValue("@text", model.Text);
                 Int32 result = command.ExecuteNonQuery();
                 if (result == 1) { 
-                    transaction.Commit();
                     r = true;
                 }
                 else
                 {
-                    transaction.Rollback();
                     r = false;
                 }
-                dataAccess.closeConnection(connection);
+                transaction.Commit();
                 return r;
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 Debug.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
                 return false;
+            }
+            finally
+            {
+                dataAccess.closeConnection(connection);
             }
 
         }
