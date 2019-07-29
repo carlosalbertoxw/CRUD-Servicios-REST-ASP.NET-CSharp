@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace Datos
 {
-    public class NotesDTO
+    public class NoteDTO
     {
         private DataAccess dataAccess;
 
-        public NotesDTO()
+        public NoteDTO()
         {
             dataAccess = new DataAccess();
         }
@@ -55,7 +55,7 @@ namespace Datos
 
         }
 
-        public bool update(Notes model)
+        public bool update(Note model)
         {
             MySqlConnection connection = null;
             MySqlTransaction transaction = null;
@@ -96,12 +96,12 @@ namespace Datos
 
         }
 
-        public Notes get(Int32 id)
+        public Note get(Int32 id)
         {
             MySqlConnection connection = null;
             try
             {
-                Notes item = new Notes();
+                Note item = new Note();
                 connection = dataAccess.openConnection();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
@@ -133,12 +133,12 @@ namespace Datos
 
         }
 
-        public List<Notes> list()
+        public List<Note> list()
         {
             MySqlConnection connection = null;
             try
             {
-                List<Notes> list = new List<Notes>();
+                List<Note> list = new List<Note>();
                 connection = dataAccess.openConnection();
                 MySqlCommand command = new MySqlCommand();
                 command.Connection = connection;
@@ -149,7 +149,7 @@ namespace Datos
 
                 foreach (DataRow row in dataTable.Rows)
                 {
-                    Notes item = new Notes();
+                    Note item = new Note();
                     item.Id = Int32.Parse(row[0].ToString());
                     item.Title = row[1].ToString();
                     item.Text = row[2].ToString();
@@ -171,7 +171,7 @@ namespace Datos
 
         }
 
-        public bool add(Notes model)
+        public bool add(Note model)
         {
             MySqlConnection connection = null;
             MySqlTransaction transaction = null;

@@ -10,14 +10,14 @@ using System.Diagnostics;
 
 namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
 {
-    public class NotesController : ApiController
+    public class NoteController : ApiController
     {
-        private NotesDTO notesDTO;
+        private NoteDTO noteDTO;
         private string token;
 
-        public NotesController()
+        public NoteController()
         {
-            notesDTO = new NotesDTO();
+            noteDTO = new NoteDTO();
             token = "qwerty";
         }
 
@@ -30,7 +30,7 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
             {
                 if (authentication == token)
                 {
-                    List<Notes> list = notesDTO.list();
+                    List<Note> list = noteDTO.list();
                     if (list != null)
                     {
                         return JSON.successToJson(list);
@@ -62,10 +62,10 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
             {
                 if (authentication == token)
                 {
-                    Notes notes = notesDTO.get(id);
-                    if (notes != null)
+                    Note note = noteDTO.get(id);
+                    if (note != null)
                     {
-                        return JSON.successToJson(notes);
+                        return JSON.successToJson(note);
                     }
                     else
                     {
@@ -86,7 +86,7 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
         }
 
         // POST: api/Notes
-        public Dictionary<String, Object> Post(HttpRequestMessage request, [FromBody]Notes notes)
+        public Dictionary<String, Object> Post(HttpRequestMessage request, [FromBody]Note note)
         {
             IEnumerable<string> headerValues = request.Headers.GetValues("Authentication");
             var authentication = headerValues.FirstOrDefault();
@@ -94,7 +94,7 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
             {
                 if (authentication == token)
                 {
-                    if (notesDTO.add(notes))
+                    if (noteDTO.add(note))
                     {
                         return JSON.successToJson(Message.SUCCESSFUL_SAVE);
                     }
@@ -116,7 +116,7 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
         }
 
         // PUT: api/Notes/5
-        public Dictionary<String, Object> Put(HttpRequestMessage request, [FromBody]Notes notes, int id)
+        public Dictionary<String, Object> Put(HttpRequestMessage request, [FromBody]Note note, int id)
         {
             IEnumerable<string> headerValues = request.Headers.GetValues("Authentication");
             var authentication = headerValues.FirstOrDefault();
@@ -124,8 +124,8 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
             {
                 if (authentication == token)
                 {
-                    notes.Id = id;
-                    if (notesDTO.update(notes))
+                    note.Id = id;
+                    if (noteDTO.update(note))
                     {
                         return JSON.successToJson(Message.SUCCESSFUL_UPDATE);
                     }
@@ -156,7 +156,7 @@ namespace CRUD_Servicios_REST_ASP.NET_CSharp.Controllers
             {
                 if (authentication == token)
                 {
-                    if (notesDTO.delete(id))
+                    if (noteDTO.delete(id))
                     {
                         return JSON.successToJson(Message.SUCCESSFUL_DELETE);
                     }
