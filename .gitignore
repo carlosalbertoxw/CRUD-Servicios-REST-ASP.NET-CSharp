@@ -1,21 +1,13 @@
-#Archivos
-*.orig
-
-#Carpetas
+# Compilación
 [Bb]in/
 [Oo]bj/
 
-packages/
+# IDE
 .vs/
+.idea/
+*.user
+*.orig
 
-Utilities/bin/
-Utilities/obj/
-
-Model/bin/
-Model/obj/
-
-Data/bin/
-Data/obj/
-
-CRUD-Servicios-REST-ASP.NET-CSharp/bin/
-CRUD-Servicios-REST-ASP.NET-CSharp/obj/
+# Publicación
+publish/
+*.pubxml

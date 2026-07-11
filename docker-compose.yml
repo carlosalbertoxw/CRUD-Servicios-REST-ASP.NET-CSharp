@@ -1,0 +1,27 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: notes-mysql
+    # Convención del proyecto: todas las fechas se guardan en UTC.
+    command: --default-time-zone=+00:00
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: notes
+      MYSQL_USER: notes_user
+      MYSQL_PASSWORD: notes_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - notes-mysql-data:/var/lib/mysql
+      - ./db/init-users.sql:/docker-entrypoint-initdb.d/init-users.sql:ro
+    healthcheck:
+      # TCP (127.0.0.1) y no socket: el socket responde también durante el
+      # servidor temporal de inicialización y daría "healthy" antes de tiempo.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  notes-mysql-data:

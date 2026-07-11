@@ -1,0 +1,47 @@
+@NotesApi_HostAddress = http://localhost:5244
+@ApiKey = local-dev.dev-secret
+
+### Listar notas (paginación por keyset: usar afterId = nextAfterId de la página anterior)
+GET {{NotesApi_HostAddress}}/api/notes?pageSize=20&afterId=0
+X-Api-Key: {{ApiKey}}
+
+### Buscar notas por texto completo (título y contenido)
+GET {{NotesApi_HostAddress}}/api/notes?search=ejemplo
+X-Api-Key: {{ApiKey}}
+
+### Obtener una nota por id (incluye el contenido completo)
+GET {{NotesApi_HostAddress}}/api/notes/1
+X-Api-Key: {{ApiKey}}
+
+### Crear una nota
+POST {{NotesApi_HostAddress}}/api/notes
+X-Api-Key: {{ApiKey}}
+Content-Type: application/json
+
+{
+  "title": "Mi nueva nota",
+  "text": "Contenido de la nota."
+}
+
+### Actualizar una nota
+PUT {{NotesApi_HostAddress}}/api/notes/1
+X-Api-Key: {{ApiKey}}
+Content-Type: application/json
+
+{
+  "title": "Título actualizado",
+  "text": "Contenido actualizado."
+}
+
+### Eliminar una nota
+DELETE {{NotesApi_HostAddress}}/api/notes/1
+X-Api-Key: {{ApiKey}}
+
+### Petición sin API key (devuelve 401)
+GET {{NotesApi_HostAddress}}/api/notes
+
+### Health checks (sin API key)
+GET {{NotesApi_HostAddress}}/health/live
+
+###
+GET {{NotesApi_HostAddress}}/health/ready
