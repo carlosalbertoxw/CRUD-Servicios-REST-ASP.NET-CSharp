@@ -2,8 +2,6 @@
 
 Ejemplo de un servicio REST con ASP.NET Core (.NET 10): un CRUD de notas respaldado por MySQL, con autenticación por API key (hasheada, con revocación y expiración), notas privadas por cliente, migraciones de base de datos, paginación por keyset, búsqueda de texto completo, rate limiting, health checks, pruebas de integración y documentación OpenAPI interactiva.
 
-> Originalmente este proyecto estaba construido con ASP.NET Web API 2 sobre .NET Framework 4.8; fue migrado a ASP.NET Core sobre .NET 10 LTS y endurecido con prácticas de producción. La versión legacy puede consultarse en el historial de git.
-
 ## Requisitos
 
 - [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
