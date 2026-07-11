@@ -4,6 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # El generador de OpenAPI de ASP.NET Core 10 no es compatible con
+      # Microsoft.OpenApi 3.x (error CS0200 al compilar); mantener 2.x
+      # hasta que Microsoft.AspNetCore.OpenApi soporte la nueva versión.
+      - dependency-name: "Microsoft.OpenApi"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
