@@ -149,7 +149,7 @@ Las pruebas de integración levantan un MySQL efímero con [Testcontainers](http
 │   │   ├── Data/                 # Repositorios MySQL (Dapper) y opciones validadas
 │   │   ├── Models/               # Note, NoteRequest, NoteSummary, PagedResult
 │   │   └── Program.cs            # Pipeline: ProblemDetails, rate limiting, auth, health
-│   └── NotesApi.Migrations/      # Migraciones versionadas con DbUp (Scripts/ y Seeds/)
+│   └── NotesApi.Migrations/      # Esquema en un único script con DbUp (Scripts/0001_schema.sql y Seeds/)
 └── tests/
     └── NotesApi.Tests/           # Pruebas de integración (Testcontainers + WebApplicationFactory)
 ```
