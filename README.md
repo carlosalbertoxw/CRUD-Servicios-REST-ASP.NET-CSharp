@@ -4,15 +4,29 @@ Ejemplo de un servicio REST con ASP.NET Core (.NET 10): un CRUD de notas respald
 
 ## Requisitos
 
-- [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Docker](https://www.docker.com/) (para la base de datos MySQL y las pruebas de integración)
+- [Docker](https://www.docker.com/) — suficiente para levantar todo el stack (Opción A) y para las pruebas de integración.
+- [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) — solo para desarrollo local con el SDK (Opción B).
 
 ## Puesta en marcha
+
+### Opción A — Todo en Docker
+
+Levanta MySQL, aplica las migraciones (con datos de ejemplo) y arranca la API con un solo comando:
+
+```bash
+docker compose up --build
+```
+
+`docker compose` orquesta el orden: espera a que MySQL esté sano, corre el servicio `migrations` (que aplica el esquema con `--seed` y termina) y solo entonces arranca `api`. La API queda en `http://localhost:8080` (ver [endpoints](#endpoints)).
+
+### Opción B — Desarrollo local con el SDK
+
+Útil para depurar la API con recarga y breakpoints, usando solo MySQL en Docker.
 
 **1. Levantar la base de datos** (MySQL 8.4 en Docker):
 
 ```bash
-docker compose up -d
+docker compose up -d mysql
 ```
 
 **2. Aplicar las migraciones** (crea las tablas; `--seed` agrega notas de ejemplo y la API key de desarrollo):
@@ -27,10 +41,14 @@ dotnet run --project src/NotesApi.Migrations -- --seed
 dotnet run --project src/NotesApi --launch-profile http
 ```
 
-La API queda disponible en `http://localhost:5244`:
+La API queda disponible en `http://localhost:5244`.
 
-- **Documentación interactiva (Scalar):** http://localhost:5244/scalar
-- **Especificación OpenAPI:** http://localhost:5244/openapi/v1.json
+### Endpoints
+
+Según la opción, la base es `http://localhost:8080` (Docker) o `http://localhost:5244` (SDK local):
+
+- **Documentación interactiva (Scalar):** `/scalar`
+- **Especificación OpenAPI:** `/openapi/v1.json`
 - **Health checks:** `/health/live` (proceso vivo) y `/health/ready` (BD alcanzable)
 
 ## Autenticación
@@ -139,7 +157,7 @@ Las pruebas de integración levantan un MySQL efímero con [Testcontainers](http
 ## Estructura del proyecto
 
 ```
-├── docker-compose.yml            # MySQL 8.4 (UTC) para desarrollo local
+├── docker-compose.yml            # Stack completo: MySQL 8.4 (UTC) + migrations + api
 ├── db/init-users.sql             # Usuario de aplicación con mínimo privilegio
 ├── .github/workflows/ci.yml     # CI: build + tests + auditoría de dependencias
 ├── src/
@@ -148,8 +166,10 @@ Las pruebas de integración levantan un MySQL efímero con [Testcontainers](http
 │   │   ├── Controllers/          # NotesController (endpoints REST)
 │   │   ├── Data/                 # Repositorios MySQL (Dapper) y opciones validadas
 │   │   ├── Models/               # Note, NoteRequest, NoteSummary, PagedResult
+│   │   ├── Dockerfile            # Imagen de la API (build SDK -> runtime aspnet)
 │   │   └── Program.cs            # Pipeline: ProblemDetails, rate limiting, auth, health
 │   └── NotesApi.Migrations/      # Esquema en un único script con DbUp (Scripts/0001_schema.sql y Seeds/)
+│                                 #   + Dockerfile del ejecutor de migraciones
 └── tests/
     └── NotesApi.Tests/           # Pruebas de integración (Testcontainers + WebApplicationFactory)
 ```

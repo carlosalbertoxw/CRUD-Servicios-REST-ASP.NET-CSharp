@@ -23,5 +23,37 @@ services:
       retries: 10
       start_period: 10s
 
+  # Aplica el esquema (y datos de ejemplo con --seed) y termina. Usa notes_user,
+  # que tiene privilegios de DDL; corre una sola vez cuando MySQL está sano.
+  migrations:
+    build:
+      context: .
+      dockerfile: src/NotesApi.Migrations/Dockerfile
+    command: ["--seed"]
+    environment:
+      ConnectionStrings__NotesDb: "Server=mysql;Port=3306;Database=notes;User ID=notes_user;Password=notes_password"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
+
+  # La API se conecta como notes_app (solo DML) y arranca cuando las
+  # migraciones terminaron correctamente.
+  api:
+    build:
+      context: .
+      dockerfile: src/NotesApi/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__NotesDb: "Server=mysql;Port=3306;Database=notes;User ID=notes_app;Password=notes_app_password;Maximum Pool Size=20"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   notes-mysql-data:

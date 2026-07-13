@@ -1,0 +1,17 @@
+# Artefactos de build: se generan dentro de la imagen, no deben copiarse.
+**/bin/
+**/obj/
+**/out/
+
+# Metadatos de repositorio y editores.
+.git/
+.github/
+.vs/
+.vscode/
+**/*.user
+
+# Docker y docs (no afectan al build de la app).
+**/Dockerfile
+.dockerignore
+docker-compose*.yml
+README.md
