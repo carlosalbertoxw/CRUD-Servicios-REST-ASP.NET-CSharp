@@ -132,7 +132,12 @@ También puedes usar [src/NotesApi/NotesApi.http](src/NotesApi/NotesApi.http) de
 dotnet test
 ```
 
-Las pruebas de integración levantan un MySQL efímero con [Testcontainers](https://dotnet.testcontainers.org/) (requiere Docker), le aplican las migraciones reales y ejercitan la API completa: autenticación, ciclo CRUD, validaciones, paginación y health checks. En cada push, GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) compila, corre las pruebas y audita dependencias vulnerables.
+Hay dos suites:
+
+- **Pruebas unitarias** (`tests/NotesApi.UnitTests`): rápidas y sin Docker; cubren el handler de autenticación por API key, el repositorio cacheado de keys y el controlador de notas. Se pueden correr solas con `dotnet test tests/NotesApi.UnitTests`.
+- **Pruebas de integración** (`tests/NotesApi.Tests`): levantan un MySQL efímero con [Testcontainers](https://dotnet.testcontainers.org/) (requiere Docker), le aplican las migraciones reales y ejercitan la API completa: autenticación, ciclo CRUD, validaciones, paginación y health checks.
+
+En cada push, GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) ejecuta tres jobs en paralelo: pruebas unitarias (señal rápida, sin Docker), auditoría de dependencias vulnerables (solo restore) y compilación + pruebas de integración.
 
 ## Configuración
 
@@ -159,7 +164,7 @@ Las pruebas de integración levantan un MySQL efímero con [Testcontainers](http
 ```
 ├── docker-compose.yml            # Stack completo: MySQL 8.4 (UTC) + migrations + api
 ├── db/init-users.sql             # Usuario de aplicación con mínimo privilegio
-├── .github/workflows/ci.yml     # CI: build + tests + auditoría de dependencias
+├── .github/workflows/ci.yml     # CI: 3 jobs paralelos (unitarias, auditoría, build + integración)
 ├── src/
 │   ├── NotesApi/
 │   │   ├── Auth/                 # Esquema de autenticación por API key (hash + revocación)
@@ -171,7 +176,8 @@ Las pruebas de integración levantan un MySQL efímero con [Testcontainers](http
 │   └── NotesApi.Migrations/      # Esquema en un único script con DbUp (Scripts/0001_schema.sql y Seeds/)
 │                                 #   + Dockerfile del ejecutor de migraciones
 └── tests/
-    └── NotesApi.Tests/           # Pruebas de integración (Testcontainers + WebApplicationFactory)
+    ├── NotesApi.Tests/           # Pruebas de integración (Testcontainers + WebApplicationFactory)
+    └── NotesApi.UnitTests/       # Pruebas unitarias (auth, cache de keys, controlador)
 ```
 
 Tecnologías: ASP.NET Core (.NET 10), [Dapper](https://github.com/DapperLib/Dapper) + [MySqlConnector](https://mysqlconnector.net/), [DbUp](https://dbup.readthedocs.io/) para migraciones, [Testcontainers](https://dotnet.testcontainers.org/) para pruebas y [Scalar](https://scalar.com/) para la documentación de la API.
