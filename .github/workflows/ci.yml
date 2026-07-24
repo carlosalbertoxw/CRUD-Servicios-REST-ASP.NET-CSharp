@@ -6,7 +6,45 @@ on:
   pull_request:
 
 jobs:
-  build-test:
+  # Pruebas unitarias: rápidas y sin Docker; dan señal en segundos.
+  pruebas-unitarias:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Pruebas unitarias
+        run: dotnet test tests/NotesApi.UnitTests --configuration Release
+
+  # Auditoría de vulnerabilidades: solo necesita el restore, no compilar.
+  auditoria:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restaurar dependencias
+        run: dotnet restore
+
+      - name: Auditar dependencias vulnerables
+        run: |
+          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then
+            echo "::error::Se encontraron dependencias con vulnerabilidades conocidas."
+            exit 1
+          fi
+
+  # Compilación + pruebas de integración: levantan MySQL con Testcontainers
+  # (Docker viene preinstalado en los runners de ubuntu-latest).
+  integracion:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -22,15 +60,5 @@ jobs:
       - name: Compilar
         run: dotnet build --no-restore --configuration Release
 
-      # Las pruebas de integración levantan MySQL con Testcontainers
-      # (Docker viene preinstalado en los runners de ubuntu-latest).
-      - name: Pruebas
-        run: dotnet test --no-build --configuration Release
-
-      - name: Auditar dependencias vulnerables
-        run: |
-          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
-          if grep -q "has the following vulnerable packages" vulnerable.txt; then
-            echo "::error::Se encontraron dependencias con vulnerabilidades conocidas."
-            exit 1
-          fi
+      - name: Pruebas de integración
+        run: dotnet test tests/NotesApi.Tests --no-build --configuration Release
