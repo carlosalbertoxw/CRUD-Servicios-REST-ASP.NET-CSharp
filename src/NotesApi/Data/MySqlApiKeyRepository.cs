@@ -1,5 +1,4 @@
 using Dapper;
-using Microsoft.Extensions.Options;
 using MySqlConnector;
 using NotesApi.Auth;
 
@@ -7,16 +6,16 @@ namespace NotesApi.Data;
 
 public class MySqlApiKeyRepository : IApiKeyRepository
 {
-    private readonly string _connectionString;
+    private readonly MySqlDataSource _dataSource;
 
-    public MySqlApiKeyRepository(IOptions<DatabaseOptions> options)
+    public MySqlApiKeyRepository(MySqlDataSource dataSource)
     {
-        _connectionString = options.Value.NotesDb;
+        _dataSource = dataSource;
     }
 
     public async Task<ApiKey?> GetActiveKeyAsync(string keyId, CancellationToken cancellationToken)
     {
-        await using var connection = new MySqlConnection(_connectionString);
+        await using var connection = _dataSource.CreateConnection();
         return await connection.QuerySingleOrDefaultAsync<ApiKey>(new CommandDefinition(
             """
             SELECT key_id, key_hash, client_name
@@ -33,7 +32,7 @@ public class MySqlApiKeyRepository : IApiKeyRepository
     {
         // Actualización laxa: solo escribe si pasó más de una hora desde el
         // último registro, para no convertir cada request en una escritura.
-        await using var connection = new MySqlConnection(_connectionString);
+        await using var connection = _dataSource.CreateConnection();
         await connection.ExecuteAsync(new CommandDefinition(
             """
             UPDATE api_keys

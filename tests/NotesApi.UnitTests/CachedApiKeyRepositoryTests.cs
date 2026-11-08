@@ -81,7 +81,7 @@ public class CachedApiKeyRepositoryTests
         var sut = CreateSut(inner, ttl: TimeSpan.FromMilliseconds(50));
 
         await sut.GetActiveKeyAsync(KeyId, CancellationToken.None);
-        await Task.Delay(300);
+        await Task.Delay(300, TestContext.Current.CancellationToken);
         await sut.GetActiveKeyAsync(KeyId, CancellationToken.None);
 
         Assert.Equal(2, inner.GetActiveKeyCalls);

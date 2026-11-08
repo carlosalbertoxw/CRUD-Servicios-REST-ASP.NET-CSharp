@@ -15,7 +15,7 @@ namespace NotesApi.Auth;
 /// Al ser un esquema con FallbackPolicy, todo endpoint exige autenticación
 /// salvo que se marque explícitamente con AllowAnonymous (fail-closed).
 /// </summary>
-public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public partial class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public const string SchemeName = "ApiKey";
     public const string HeaderName = "X-Api-Key";
@@ -49,7 +49,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
         var apiKey = await _apiKeys.GetActiveKeyAsync(parts[0], Context.RequestAborted);
         if (apiKey is null || !SecretMatches(parts[1], apiKey.KeyHash))
         {
-            Logger.LogInformation("Intento de autenticación fallido para key_id {KeyId}", parts[0]);
+            LogFailedAttempt(Logger, parts[0]);
             return AuthenticateResult.Fail("API key inválida, revocada o expirada.");
         }
 
@@ -60,7 +60,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
         catch (Exception ex)
         {
             // Telemetría de mejor esfuerzo: no debe tumbar una autenticación válida.
-            Logger.LogWarning(ex, "No se pudo registrar el uso de la key {KeyId}", apiKey.KeyId);
+            LogRegisterUseFailed(Logger, ex, apiKey.KeyId);
         }
 
         var identity = new ClaimsIdentity(
@@ -75,6 +75,13 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
         Response.Headers.WWWAuthenticate = SchemeName;
         return base.HandleChallengeAsync(properties);
     }
+
+    // Logging con source generator: sin boxing ni parseo de la plantilla por llamada.
+    [LoggerMessage(Level = LogLevel.Information, Message = "Intento de autenticación fallido para key_id {KeyId}")]
+    private static partial void LogFailedAttempt(ILogger logger, string keyId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "No se pudo registrar el uso de la key {KeyId}")]
+    private static partial void LogRegisterUseFailed(ILogger logger, Exception exception, string keyId);
 
     private static bool SecretMatches(string providedSecret, byte[] storedHash)
     {

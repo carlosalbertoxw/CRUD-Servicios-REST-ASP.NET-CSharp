@@ -11,11 +11,15 @@ public static class MigrationRunner
 {
     public static bool Run(string connectionString, bool includeSeeds)
     {
-        var assembly = Assembly.GetExecutingAssembly();
+        return Apply(connectionString, ".Scripts.", "Error aplicando migraciones")
+            && (!includeSeeds || Apply(connectionString, ".Seeds.", "Error aplicando datos de desarrollo"));
+    }
 
+    private static bool Apply(string connectionString, string resourceFolder, string errorMessage)
+    {
         var result = DeployChanges.To
             .MySqlDatabase(connectionString)
-            .WithScriptsEmbeddedInAssembly(assembly, s => s.Contains(".Scripts."))
+            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains(resourceFolder))
             .WithTransactionPerScript()
             .LogToConsole()
             .Build()
@@ -23,27 +27,9 @@ public static class MigrationRunner
 
         if (!result.Successful)
         {
-            Console.Error.WriteLine($"Error aplicando migraciones: {result.Error}");
-            return false;
+            Console.Error.WriteLine($"{errorMessage}: {result.Error}");
         }
 
-        if (includeSeeds)
-        {
-            var seedResult = DeployChanges.To
-                .MySqlDatabase(connectionString)
-                .WithScriptsEmbeddedInAssembly(assembly, s => s.Contains(".Seeds."))
-                .WithTransactionPerScript()
-                .LogToConsole()
-                .Build()
-                .PerformUpgrade();
-
-            if (!seedResult.Successful)
-            {
-                Console.Error.WriteLine($"Error aplicando datos de desarrollo: {seedResult.Error}");
-                return false;
-            }
-        }
-
-        return true;
+        return result.Successful;
     }
 }

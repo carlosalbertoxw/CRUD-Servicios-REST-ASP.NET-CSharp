@@ -5,60 +5,66 @@ on:
     branches: [master]
   pull_request:
 
+# El token de GitHub solo necesita leer el código.
+permissions:
+  contents: read
+
+# Un push nuevo sobre la misma rama deja obsoleto al run anterior; en master no
+# se cancela para que cada commit integrado conserve su resultado.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
-  # Pruebas unitarias: rápidas y sin Docker; dan señal en segundos.
+  # Señal rápida y sin Docker: restore (con auditoría NuGet de vulnerabilidades,
+  # que rompe el build con severidad moderada o mayor), formato y pruebas unitarias.
   pruebas-unitarias:
+    name: Formato, auditoría y pruebas unitarias
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
       - name: Configurar .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Restaurar dependencias (lockfile + auditoría)
+        run: dotnet restore --locked-mode
+
+      - name: Verificar formato y estilo
+        run: dotnet format --no-restore --verify-no-changes
+
+      - name: Compilar
+        run: dotnet build --no-restore --configuration Release
 
       - name: Pruebas unitarias
-        run: dotnet test tests/NotesApi.UnitTests --configuration Release
+        run: dotnet test --project tests/NotesApi.UnitTests --no-build --configuration Release
 
-  # Auditoría de vulnerabilidades: solo necesita el restore, no compilar.
-  auditoria:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Configurar .NET
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Restaurar dependencias
-        run: dotnet restore
-
-      - name: Auditar dependencias vulnerables
-        run: |
-          dotnet list package --vulnerable --include-transitive | tee vulnerable.txt
-          if grep -q "has the following vulnerable packages" vulnerable.txt; then
-            echo "::error::Se encontraron dependencias con vulnerabilidades conocidas."
-            exit 1
-          fi
-
-  # Compilación + pruebas de integración: levantan MySQL con Testcontainers
-  # (Docker viene preinstalado en los runners de ubuntu-latest).
+  # Pruebas de integración: levantan MySQL con Testcontainers (Docker viene
+  # preinstalado en los runners de ubuntu-latest).
   integracion:
+    name: Pruebas de integración
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
       - name: Configurar .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
 
       - name: Restaurar dependencias
-        run: dotnet restore
+        run: dotnet restore --locked-mode
 
       - name: Compilar
         run: dotnet build --no-restore --configuration Release
 
       - name: Pruebas de integración
-        run: dotnet test tests/NotesApi.Tests --no-build --configuration Release
+        run: dotnet test --project tests/NotesApi.Tests --no-build --configuration Release

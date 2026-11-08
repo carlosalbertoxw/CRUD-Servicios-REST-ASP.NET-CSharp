@@ -1,5 +1,4 @@
 using Dapper;
-using Microsoft.Extensions.Options;
 using MySqlConnector;
 using NotesApi.Models;
 
@@ -7,14 +6,12 @@ namespace NotesApi.Data;
 
 public class MySqlNoteRepository : INoteRepository
 {
-    private readonly string _connectionString;
+    private readonly MySqlDataSource _dataSource;
 
-    public MySqlNoteRepository(IOptions<DatabaseOptions> options)
+    public MySqlNoteRepository(MySqlDataSource dataSource)
     {
-        _connectionString = options.Value.NotesDb;
+        _dataSource = dataSource;
     }
-
-    private MySqlConnection CreateConnection() => new(_connectionString);
 
     public async Task<PagedResult<NoteSummary>> GetPageAsync(
         string ownerKeyId, int afterId, int pageSize, string? search, CancellationToken cancellationToken)
@@ -25,12 +22,7 @@ public class MySqlNoteRepository : INoteRepository
             filter += " AND MATCH(title, text) AGAINST(@search IN NATURAL LANGUAGE MODE)";
         }
 
-        await using var connection = CreateConnection();
-
-        var totalCount = await connection.ExecuteScalarAsync<long>(new CommandDefinition(
-            $"SELECT COUNT(*) FROM notes WHERE {filter};",
-            new { ownerKeyId, search },
-            cancellationToken: cancellationToken));
+        await using var connection = _dataSource.CreateConnection();
 
         // Keyset: se pide un elemento extra para saber si hay página siguiente.
         var items = (await connection.QueryAsync<NoteSummary>(new CommandDefinition(
@@ -54,14 +46,13 @@ public class MySqlNoteRepository : INoteRepository
         {
             Items = items,
             PageSize = pageSize,
-            TotalCount = totalCount,
             NextAfterId = hasMore ? items[^1].Id : null,
         };
     }
 
     public async Task<Note?> GetByIdAsync(string ownerKeyId, int id, CancellationToken cancellationToken)
     {
-        await using var connection = CreateConnection();
+        await using var connection = _dataSource.CreateConnection();
         return await connection.QuerySingleOrDefaultAsync<Note>(new CommandDefinition(
             """
             SELECT id, title, text, created_at, updated_at
@@ -72,40 +63,37 @@ public class MySqlNoteRepository : INoteRepository
             cancellationToken: cancellationToken));
     }
 
-    public async Task<Note> CreateAsync(string ownerKeyId, Note note, CancellationToken cancellationToken)
+    public async Task<Note> CreateAsync(string ownerKeyId, NoteRequest request, CancellationToken cancellationToken)
     {
-        await using var connection = CreateConnection();
-        var id = await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+        // Inserta y relee la fila en un solo round-trip para devolver los
+        // timestamps generados por la BD.
+        await using var connection = _dataSource.CreateConnection();
+        return await connection.QuerySingleAsync<Note>(new CommandDefinition(
             """
             INSERT INTO notes (owner_key_id, title, text) VALUES (@ownerKeyId, @Title, @Text);
-            SELECT LAST_INSERT_ID();
+            SELECT id, title, text, created_at, updated_at FROM notes WHERE id = LAST_INSERT_ID();
             """,
-            new { ownerKeyId, note.Title, note.Text },
+            new { ownerKeyId, request.Title, request.Text },
             cancellationToken: cancellationToken));
-
-        // Releer la fila para devolver los timestamps generados por la BD.
-        return (await connection.QuerySingleAsync<Note>(new CommandDefinition(
-            "SELECT id, title, text, created_at, updated_at FROM notes WHERE id = @id;",
-            new { id },
-            cancellationToken: cancellationToken)));
     }
 
-    public async Task<bool> UpdateAsync(string ownerKeyId, Note note, CancellationToken cancellationToken)
+    public async Task<bool> UpdateAsync(
+        string ownerKeyId, int id, NoteRequest request, CancellationToken cancellationToken)
     {
-        await using var connection = CreateConnection();
+        await using var connection = _dataSource.CreateConnection();
         var rows = await connection.ExecuteAsync(new CommandDefinition(
             """
             UPDATE notes SET title = @Title, text = @Text
-            WHERE id = @Id AND owner_key_id = @ownerKeyId;
+            WHERE id = @id AND owner_key_id = @ownerKeyId;
             """,
-            new { note.Title, note.Text, note.Id, ownerKeyId },
+            new { request.Title, request.Text, id, ownerKeyId },
             cancellationToken: cancellationToken));
         return rows > 0;
     }
 
     public async Task<bool> DeleteAsync(string ownerKeyId, int id, CancellationToken cancellationToken)
     {
-        await using var connection = CreateConnection();
+        await using var connection = _dataSource.CreateConnection();
         var rows = await connection.ExecuteAsync(new CommandDefinition(
             "DELETE FROM notes WHERE id = @id AND owner_key_id = @ownerKeyId;",
             new { id, ownerKeyId },

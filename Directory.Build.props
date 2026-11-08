@@ -1,0 +1,25 @@
+<Project>
+
+  <!-- Propiedades comunes a todos los proyectos de la solución. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Análisis estático: reglas recomendadas de .NET y estilo de .editorconfig
+         aplicado en la compilación. -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Restore reproducible: packages.lock.json versionado; en CI y Docker se
+         restaura con locked-mode para fallar si el lock no coincide. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
+    <!-- Auditoría de vulnerabilidades en cada restore (directas y transitivas):
+         severidad moderada o mayor rompe el build. -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <WarningsAsErrors>$(WarningsAsErrors);NU1902;NU1903;NU1904</WarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

@@ -40,10 +40,12 @@ public class NotesControllerTests
         public Task<Note?> GetByIdAsync(string ownerKeyId, int id, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
-        public Task<Note> CreateAsync(string ownerKeyId, Note note, CancellationToken cancellationToken)
+        public Task<Note> CreateAsync(
+            string ownerKeyId, NoteRequest request, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
-        public Task<bool> UpdateAsync(string ownerKeyId, Note note, CancellationToken cancellationToken)
+        public Task<bool> UpdateAsync(
+            string ownerKeyId, int id, NoteRequest request, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
         public Task<bool> DeleteAsync(string ownerKeyId, int id, CancellationToken cancellationToken)

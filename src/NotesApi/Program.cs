@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
+using MySqlConnector;
 using NotesApi.Auth;
 using NotesApi.Data;
 using Scalar.AspNetCore;
@@ -51,6 +53,18 @@ builder.Services.AddOptions<DatabaseOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+// Un único MySqlDataSource (pool de conexiones) para toda la app. Las fechas de
+// la BD se leen como UTC (DateTimeKind.Utc), así se serializan con sufijo "Z".
+builder.Services.AddSingleton(sp =>
+{
+    var connectionString = new MySqlConnectionStringBuilder(
+        sp.GetRequiredService<IOptions<DatabaseOptions>>().Value.NotesDb)
+    {
+        DateTimeKind = MySqlDateTimeKind.Utc,
+    }.ConnectionString;
+    return new MySqlDataSourceBuilder(connectionString).Build();
+});
+
 builder.Services.AddScoped<INoteRepository, MySqlNoteRepository>();
 
 // Las keys validadas se cachean un TTL corto: el caso caliente autentica sin
@@ -82,7 +96,12 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.OnRejected = (context, _) =>
     {
-        context.HttpContext.Response.Headers.RetryAfter = windowSeconds.ToString();
+        // Segundos que faltan para que se renueve la ventana (no la ventana completa).
+        var retryAfter = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var remaining)
+            ? remaining
+            : TimeSpan.FromSeconds(windowSeconds);
+        context.HttpContext.Response.Headers.RetryAfter =
+            Math.Max(1, (int)Math.Ceiling(retryAfter.TotalSeconds)).ToString(CultureInfo.InvariantCulture);
         return ValueTask.CompletedTask;
     };
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
@@ -102,8 +121,22 @@ builder.Services.AddHealthChecks()
 var app = builder.Build();
 
 // Todos los errores (500 incluidos) responden ProblemDetails, sin detalles internos.
-app.UseExceptionHandler();
+// Los errores de la petición que detecta el servidor (p. ej. cuerpo mayor que
+// MaxRequestBodySize) conservan su código (413) en vez de convertirse en 500.
+app.UseExceptionHandler(new ExceptionHandlerOptions
+{
+    StatusCodeSelector = exception => exception is BadHttpRequestException badRequest
+        ? badRequest.StatusCode
+        : StatusCodes.Status500InternalServerError,
+});
 app.UseStatusCodePages();
+
+// La API solo responde JSON: impide que un navegador "adivine" otro tipo de contenido.
+app.Use((context, next) =>
+{
+    context.Response.Headers.XContentTypeOptions = "nosniff";
+    return next(context);
+});
 
 if (!app.Environment.IsDevelopment())
 {
@@ -132,11 +165,15 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Documentación y health checks: únicos endpoints exentos de API key.
+// Documentación y health checks: únicos endpoints exentos de API key. Los
+// health checks tampoco consumen cuota de rate limiting: los sondeos del
+// orquestador no deben competir con el tráfico real.
 app.MapOpenApi().AllowAnonymous();
 app.MapScalarApiReference().AllowAnonymous();
-app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
-app.MapHealthChecks("/health/ready").AllowAnonymous();
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false })
+    .AllowAnonymous()
+    .DisableRateLimiting();
+app.MapHealthChecks("/health/ready").AllowAnonymous().DisableRateLimiting();
 
 app.MapControllers();
 

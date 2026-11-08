@@ -25,7 +25,7 @@ public class NotesApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         .WithPassword("notes_password")
         .Build();
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _mysql.StartAsync();
 
@@ -65,9 +65,10 @@ public class NotesApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         return client;
     }
 
-    async Task IAsyncLifetime.DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
         await _mysql.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }

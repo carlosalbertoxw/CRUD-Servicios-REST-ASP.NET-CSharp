@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/NotesApi.Migrations/NotesApi.Migrations.csproj" />
+    <Project Path="src/NotesApi/NotesApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NotesApi.Tests/NotesApi.Tests.csproj" />
+    <Project Path="tests/NotesApi.UnitTests/NotesApi.UnitTests.csproj" />
+  </Folder>
+</Solution>

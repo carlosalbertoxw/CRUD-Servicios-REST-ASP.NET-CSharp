@@ -12,7 +12,7 @@ public interface INoteRepository
         string ownerKeyId, int afterId, int pageSize, string? search, CancellationToken cancellationToken);
 
     Task<Note?> GetByIdAsync(string ownerKeyId, int id, CancellationToken cancellationToken);
-    Task<Note> CreateAsync(string ownerKeyId, Note note, CancellationToken cancellationToken);
-    Task<bool> UpdateAsync(string ownerKeyId, Note note, CancellationToken cancellationToken);
+    Task<Note> CreateAsync(string ownerKeyId, NoteRequest request, CancellationToken cancellationToken);
+    Task<bool> UpdateAsync(string ownerKeyId, int id, NoteRequest request, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(string ownerKeyId, int id, CancellationToken cancellationToken);
 }

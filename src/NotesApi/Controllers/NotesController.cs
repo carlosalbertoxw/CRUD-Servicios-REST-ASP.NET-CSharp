@@ -56,8 +56,7 @@ public class NotesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Note>> Create(NoteRequest request, CancellationToken cancellationToken)
     {
-        var created = await _repository.CreateAsync(
-            OwnerKeyId, new Note { Title = request.Title, Text = request.Text }, cancellationToken);
+        var created = await _repository.CreateAsync(OwnerKeyId, request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -68,8 +67,7 @@ public class NotesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, NoteRequest request, CancellationToken cancellationToken)
     {
-        var updated = await _repository.UpdateAsync(
-            OwnerKeyId, new Note { Id = id, Title = request.Title, Text = request.Text }, cancellationToken);
+        var updated = await _repository.UpdateAsync(OwnerKeyId, id, request, cancellationToken);
         return updated ? NoContent() : NotFound();
     }
 

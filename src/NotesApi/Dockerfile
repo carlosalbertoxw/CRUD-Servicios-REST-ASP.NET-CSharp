@@ -4,23 +4,24 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Restaura primero con solo el .csproj para cachear los paquetes NuGet.
-COPY src/NotesApi/NotesApi.csproj src/NotesApi/
-RUN dotnet restore src/NotesApi/NotesApi.csproj
+# Restaura primero con solo los archivos de proyecto para cachear los paquetes
+# NuGet. --locked-mode falla si packages.lock.json no coincide.
+COPY global.json Directory.Build.props Directory.Packages.props .editorconfig ./
+COPY src/NotesApi/NotesApi.csproj src/NotesApi/packages.lock.json src/NotesApi/
+RUN dotnet restore src/NotesApi/NotesApi.csproj --locked-mode
 
 COPY src/NotesApi/ src/NotesApi/
 RUN dotnet publish src/NotesApi/NotesApi.csproj -c Release -o /app --no-restore
 
 # --- runtime ---
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+# Imagen chiseled: sin shell ni gestor de paquetes. Kestrel escucha HTTP en
+# 8080 por defecto (TLS se termina en el reverse proxy).
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS runtime
 WORKDIR /app
-
-# Kestrel escucha HTTP en 8080 (TLS se termina en el reverse proxy).
-ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 COPY --from=build /app ./
 
-# APP_UID viene definido en la imagen aspnet: ejecuta como usuario sin privilegios.
+# APP_UID viene definido en la imagen: ejecuta como usuario sin privilegios.
 USER $APP_UID
 ENTRYPOINT ["dotnet", "NotesApi.dll"]

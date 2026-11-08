@@ -1,10 +1,11 @@
 namespace NotesApi.Models;
 
-public class Note
+/// <summary>Nota con su contenido completo. Las fechas son UTC (DateTimeKind.Utc).</summary>
+public sealed record Note
 {
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string? Text { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public int Id { get; init; }
+    public string Title { get; init; } = string.Empty;
+    public string? Text { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public DateTime UpdatedAt { get; init; }
 }
