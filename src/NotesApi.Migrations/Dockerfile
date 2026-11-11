@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # --- build ---
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 # Restaura primero con solo los archivos de proyecto para cachear los paquetes
