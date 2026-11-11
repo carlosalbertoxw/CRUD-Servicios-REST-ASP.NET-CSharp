@@ -11,7 +11,7 @@
     <PackageVersion Include="Dapper" Version="2.1.89" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
     <PackageVersion Include="MySqlConnector" Version="2.6.2" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.19.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.20.0" />
 
     <!-- Migraciones -->
     <PackageVersion Include="dbup-mysql" Version="6.1.0" />
