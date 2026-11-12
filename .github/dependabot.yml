@@ -18,3 +18,8 @@ updates:
       - "/src/NotesApi.Migrations"
     schedule:
       interval: weekly
+    # Un salto de versión mayor de .NET (p. ej. 10 -> 11) exige migrar a la vez
+    # global.json, el TargetFramework y las imágenes de runtime; se hace a mano.
+    ignore:
+      - dependency-name: "dotnet/*"
+        update-types: ["version-update:semver-major"]
