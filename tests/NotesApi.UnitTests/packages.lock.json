@@ -218,10 +218,10 @@
         "type": "Project",
         "dependencies": {
           "AspNetCore.HealthChecks.MySql": "[9.0.0, )",
-          "Dapper": "[2.1.89, )",
+          "Dapper": "[2.1.100, )",
           "Microsoft.AspNetCore.OpenApi": "[10.0.15, )",
           "MySqlConnector": "[3.0.0, )",
-          "Scalar.AspNetCore": "[3.0.1, )"
+          "Scalar.AspNetCore": "[3.2.0, )"
         }
       },
       "AspNetCore.HealthChecks.MySql": {
@@ -236,9 +236,9 @@
       },
       "Dapper": {
         "type": "CentralTransitive",
-        "requested": "[2.1.89, )",
-        "resolved": "2.1.89",
-        "contentHash": "1VjFE664wnxvuhlgP8kS4PeFFF4jqD3VkbIHW6Zlc52zuibgcz5ICnIHcQXlTp6pURpPNGLV0ZpNe5x9KePJnA=="
+        "requested": "[2.1.100, )",
+        "resolved": "2.1.100",
+        "contentHash": "zKwgGfxkDIVLGU2WIsl57DwTgj17+fa5v0u2eiVMxU92GXN2fRIn2M8QMGtyGFrPSbVOYKgGFxAxEFL6CB9tTw=="
       },
       "Microsoft.AspNetCore.OpenApi": {
         "type": "CentralTransitive",
@@ -261,9 +261,9 @@
       },
       "Scalar.AspNetCore": {
         "type": "CentralTransitive",
-        "requested": "[3.0.1, )",
-        "resolved": "3.0.1",
-        "contentHash": "J4NMGYFbz8mB+tvC8HSp5q7VUami7BnqSmY4IMGQvqJX0WhbsXfwmJA5F0iRzVmz/VmYPAZKvsgMHUUz8/j76Q=="
+        "requested": "[3.2.0, )",
+        "resolved": "3.2.0",
+        "contentHash": "sPxc+khxOd44lDvfuuf9+sdQiyaSYQ8cz+udZIHuO45G3psadh6JMlrv+Km6/D7EeQmd6cSMKxIEA8KhrKkvyg=="
       }
     }
   }
