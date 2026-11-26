@@ -4,6 +4,9 @@ on:
   push:
     branches: [master]
   pull_request:
+  # Lo usa dependabot-lockfiles.yml para validar el commit con los lock files
+  # regenerados, ya que un push hecho con GITHUB_TOKEN no dispara el CI.
+  workflow_dispatch:
 
 # El token de GitHub solo necesita leer el código.
 permissions:

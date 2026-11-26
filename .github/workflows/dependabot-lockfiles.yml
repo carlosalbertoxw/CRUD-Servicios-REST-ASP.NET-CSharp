@@ -1,0 +1,68 @@
+name: Lock files de Dependabot
+
+# Dependabot solo actualiza el packages.lock.json del proyecto que referencia el
+# paquete; los demás (p. ej. los de pruebas, que lo heredan de forma transitiva)
+# quedan desfasados y el restore en modo bloqueado del CI falla. Este workflow
+# los regenera en la rama del PR y relanza el CI sobre el commit resultante.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  regenerar:
+    name: Regenerar packages.lock.json
+    # Solo PRs de NuGet abiertos por Dependabot desde una rama de este repositorio.
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      startsWith(github.head_ref, 'dependabot/nuget/') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # subir el commit con los lock files
+      actions: write # relanzar el CI (un push con GITHUB_TOKEN no dispara workflows)
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Regenerar lock files
+        run: dotnet restore --force-evaluate
+
+      - name: Subir cambios y relanzar CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Los lock files ya están al día."
+            exit 0
+          fi
+
+          # Salvaguarda: este workflow solo debe tocar lock files.
+          otros=$(git status --porcelain | awk '{print $2}' | grep -v 'packages\.lock\.json$' || true)
+          if [ -n "$otros" ]; then
+            echo "::error::El restore modificó archivos que no son lock files:"
+            echo "$otros"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Regenera packages.lock.json"
+          git push origin "HEAD:$HEAD_REF"
+
+          gh workflow run ci.yml --ref "$HEAD_REF"
